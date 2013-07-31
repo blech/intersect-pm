@@ -5,8 +5,12 @@ from flask import Flask, escape, redirect, render_template, request, session, ur
 from twitter import *
 from auth import *
 
+import memcache
+
 app = Flask(__name__)
 app.secret_key = app_secret
+
+mc = memcache.Client(['127.0.0.1:11211'], debug=0)
 
 def parse_oauth_tokens(result):
     for r in result.split('&'):
@@ -25,8 +29,11 @@ def index():
     oauth_token = session.get('oauth_token', None)
     oauth_secret = session.get('oauth_secret', None)
 
-    t = Twitter(auth=OAuth(oauth_token, oauth_secret, consumer_key, consumer_secret))
-    u = t.account.settings()
+    u = mc.get(str(oauth_token)+":user")
+    if not u:
+        t = Twitter(auth=OAuth(oauth_token, oauth_secret, consumer_key, consumer_secret))
+        u = t.account.settings()
+        mc.set(str(oauth_token)+":user", dict(u))
     return "Signed in to Twitter as %s" % escape(u['screen_name'])
 
 
@@ -62,4 +69,5 @@ def callback():
     return redirect(url_for('index'))
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug = True)
+
