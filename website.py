@@ -45,7 +45,6 @@ def intersect():
 
     i = set(my_list['ids']).intersection(set(their_list['ids']))
     users = user_lookup(oauth_token, oauth_secret, i)
-    print "%r" % users
 
     return render_template("list.html", users=users)
 
@@ -101,7 +100,9 @@ def parse_oauth_tokens(result):
 @app.route('/auth', methods=['GET', 'POST'])
 def auth():
     twitter = Twitter(auth=OAuth('', '', consumer_key, consumer_secret), format='', api_version=None)
-    oauth_token, oauth_token_secret = parse_oauth_tokens(twitter.oauth.request_token())
+    oauth_callback = request.host_url + 'callback'
+    request_token = twitter.oauth.request_token(oauth_callback=oauth_callback)
+    oauth_token, oauth_token_secret = parse_oauth_tokens(request_token)
 
     session['temp_token'] = oauth_token
     session['temp_secret'] = oauth_token_secret
