@@ -19,8 +19,7 @@ mc = memcache.Client(['127.0.0.1:11211'], debug=0)
 @app.route("/")
 def index():
     if not 'oauth_token' in session or not 'oauth_secret' in session:
-        # return render_template("auth.html")
-        return 'Click here to auth <a href="/auth">auth!</a>'
+        return render_template("auth.html")
 
     oauth_token = session.get('oauth_token', None)
     oauth_secret = session.get('oauth_secret', None)
