@@ -5,6 +5,7 @@ from flask import Flask, escape, redirect, render_template, request, session, ur
 from twitter import *
 from auth import *
 
+import hashlib
 import memcache
 
 app = Flask(__name__)
@@ -24,18 +25,69 @@ def parse_oauth_tokens(result):
 @app.route("/")
 def index():
     if not 'oauth_token' in session or not 'oauth_secret' in session:
+        # return render_template("auth.html")
         return 'Click here to auth <a href="/auth">auth!</a>'
 
     oauth_token = session.get('oauth_token', None)
     oauth_secret = session.get('oauth_secret', None)
 
+    user = get_user_info(oauth_token, oauth_secret)
+    return render_template("index.html", user=u)
+
+@app.route("/intersect", methods=['POST'])
+def intersect():
+    if not 'oauth_token' in session or not 'oauth_secret' in session:
+        return redirect(url_for('index'))
+
+    oauth_token = session.get('oauth_token', None)
+    oauth_secret = session.get('oauth_secret', None)
+
+    other_name = request.form.get('other_name', None)
+    if not other_name:
+        return redirect(url_for('index'))
+
+    my_list = get_follower_ids(oauth_token, oauth_secret)
+    their_list = get_follower_ids(oauth_token, oauth_secret, other_name)
+
+    i = set(my_list['ids']).intersection(set(their_list['ids']))
+    print len(i)
+    user_ids = ','.join([str(x) for x in i])
+
+    users = user_lookup(oauth_token, oauth_secret, user_ids)
+    print "%r" % users
+
+    return render_template("list.html", users=users)
+
+
+### Twitter methods
+
+def get_user_info(oauth_token, oauth_secret):
     u = mc.get(str(oauth_token)+":user")
     if not u:
         t = Twitter(auth=OAuth(oauth_token, oauth_secret, consumer_key, consumer_secret))
         u = t.account.settings()
         mc.set(str(oauth_token)+":user", dict(u))
-    return "Signed in to Twitter as %s" % escape(u['screen_name'])
+    return u
 
+def get_follower_ids(oauth_token, oauth_secret, screen_name=None):
+    f = mc.get(str("%s:followers" % screen_name))
+    if not f:
+        t = Twitter(auth=OAuth(oauth_token, oauth_secret, consumer_key, consumer_secret))
+        if screen_name:
+            f = t.followers.ids(screen_name=screen_name)
+        else:
+            f = t.followers.ids()
+        mc.set(str("%s:followers" % screen_name), dict(f))
+    return f
+
+def user_lookup(oauth_token, oauth_secret, user_ids):
+    key = hashlib.md5(",".join(user_ids)).hexdigest()
+    users = mc.get(key)
+    if not users:
+        t = Twitter(auth=OAuth(oauth_token, oauth_secret, consumer_key, consumer_secret))
+        users = t.users.lookup(user_id=user_ids)
+        mc.set(key, list(users))
+    return users
 
 ### /auth and /callback required for logging in to Twitter
 

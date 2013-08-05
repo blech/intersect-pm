@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+
+  <title>intersect.husk.org.</title>
+  <link href="/static/collected.css" media="screen" type="text/css" rel="stylesheet" />
+
+  <meta name="author" content="Paul Mison" />
+  <meta name="description" content="Paul Mison, elsewhere." />
+  <meta name="keywords" content="" />
+
+  <style type="text/css">
+    body { height: 100%; }
+    #big { color: #00f; 
+           font-size: 76px; 
+           font-weight:600; 
+           line-height: 0.8em; 
+           letter-spacing: -0.05em;
+           height: 100%; }
+    #big a:hover { color: #66f; background: none; }
+  </style>
+
+</head>
+<body>
+
+<div id="wrap">
+  <div class="header">
+    <h1>intersect.husk.org. <span class="sub">find twitter user list intersections.</span></h1>
+  </div>
+    
+  <div id="content">
+    <p>You are signed in to Twitter as <a href="https://www.twitter.com/{{ user.screen_name }}">{{ user.screen_name }}</a>.</p>
+    <form action="/intersect" method="POST">
+      <p>Enter the Twitter username to find an intersection:</p>
+      <input type="text" name="other_name">
+      <input type="submit" value="Go">
+  </div>
+</div>
+</body>
+</html>
