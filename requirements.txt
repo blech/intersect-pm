@@ -1,4 +1,10 @@
-flask
-twitter
-python-memcached
+Flask==0.10.1
+Jinja2==2.7
+MarkupSafe==0.18
+Werkzeug==0.9.3
+gunicorn==17.5
+itsdangerous==0.22
+python-memcached==1.53
+twitter==1.10.0
+wsgiref==0.1.2
 
