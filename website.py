@@ -42,18 +42,16 @@ def intersect():
     oauth_token = session.get('oauth_token', None)
     oauth_secret = session.get('oauth_secret', None)
 
+    user = get_user_info(oauth_token, oauth_secret)
     other_name = request.form.get('other_name', None)
-    if not other_name:
+    if not other_name or other_name == user['screen_name']:
         return redirect(url_for('index'))
 
-    my_list = get_follower_ids(oauth_token, oauth_secret)
+    my_list = get_follower_ids(oauth_token, oauth_secret, user['screen_name'])
     their_list = get_follower_ids(oauth_token, oauth_secret, other_name)
 
     i = set(my_list['ids']).intersection(set(their_list['ids']))
-    print len(i)
-    user_ids = ','.join([str(x) for x in i])
-
-    users = user_lookup(oauth_token, oauth_secret, user_ids)
+    users = user_lookup(oauth_token, oauth_secret, i)
     print "%r" % users
 
     return render_template("list.html", users=users)
@@ -80,13 +78,18 @@ def get_follower_ids(oauth_token, oauth_secret, screen_name=None):
         mc.set(str("%s:followers" % screen_name), dict(f))
     return f
 
-def user_lookup(oauth_token, oauth_secret, user_ids):
-    key = hashlib.md5(",".join(user_ids)).hexdigest()
+def user_lookup(oauth_token, oauth_secret, intersect):
+    user_ids = ','.join([str(x) for x in intersect])
+    key = hashlib.md5(user_ids).hexdigest()
     users = mc.get(key)
     if not users:
+        users = []
         t = Twitter(auth=OAuth(oauth_token, oauth_secret, consumer_key, consumer_secret))
-        users = t.users.lookup(user_id=user_ids)
-        mc.set(key, list(users))
+        chunks = [list(intersect)[i:i+100] for i in range(0, len(intersect), 100)]
+        for chunk in chunks:
+            user_ids = ','.join([str(x) for x in chunk])
+            users.extend(list(t.users.lookup(user_id=user_ids)))
+        mc.set(key, users)
     return users
 
 ### /auth and /callback required for logging in to Twitter
