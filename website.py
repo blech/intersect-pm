@@ -32,7 +32,7 @@ def index():
     oauth_secret = session.get('oauth_secret', None)
 
     user = get_user_info(oauth_token, oauth_secret)
-    return render_template("index.html", user=u)
+    return render_template("index.html", user=user)
 
 @app.route("/intersect", methods=['POST'])
 def intersect():
