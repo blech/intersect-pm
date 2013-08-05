@@ -3,24 +3,18 @@
 from flask import Flask, escape, redirect, render_template, request, session, url_for
 
 from twitter import *
-from auth import *
 
 import hashlib
 import memcache
+import os
 
 app = Flask(__name__)
-app.secret_key = app_secret
+app.secret_key = os.environ['app_secret']
+
+consumer_key = os.environ['consumer_key']
+consumer_secret = os.environ['consumer_secret']
 
 mc = memcache.Client(['127.0.0.1:11211'], debug=0)
-
-def parse_oauth_tokens(result):
-    for r in result.split('&'):
-        k, v = r.split('=')
-        if k == 'oauth_token':
-            oauth_token = v
-        elif k == 'oauth_token_secret':
-            oauth_token_secret = v
-    return oauth_token, oauth_token_secret
 
 @app.route("/")
 def index():
@@ -91,6 +85,17 @@ def user_lookup(oauth_token, oauth_secret, intersect):
             users.extend(list(t.users.lookup(user_id=user_ids)))
         mc.set(key, users)
     return users
+
+### utility auth method
+
+def parse_oauth_tokens(result):
+    for r in result.split('&'):
+        k, v = r.split('=')
+        if k == 'oauth_token':
+            oauth_token = v
+        elif k == 'oauth_token_secret':
+            oauth_token_secret = v
+    return oauth_token, oauth_token_secret
 
 ### /auth and /callback required for logging in to Twitter
 
