@@ -30,12 +30,20 @@
   </div>
     
   <div id="content">
-    <p>You are signed in to Twitter as <a href="https://www.twitter.com/{{ user.screen_name }}">{{ user.screen_name }}</a>.</p>
-    <form action="/intersect" method="POST">
-      <p>Enter the Twitter username to find an intersection:</p>
-      <input type="text" name="other_name">
-      <input type="submit" value="Go">
+    <h2>Signed in as <a href="https://www.twitter.com/{{ user.screen_name }}">{{ user.screen_name }}</a>.</h2>
+
+    <div id="blurb" style="margin-top:16px; width: 500px; color: #666;">
+      <form action="/intersect" method="POST">
+        <p>Enter the Twitter username to find an intersection:</p>
+        <input type="text" name="other_name">
+        <input type="submit" value="Go">
+      </form>
+    </div>
   </div>
 </div>
 </body>
 </html>
+
+<!-- 
+-*- tab-width: 2; x-font-size: 9;  -*-
+ -->
