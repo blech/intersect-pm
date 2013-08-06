@@ -30,10 +30,20 @@
   </div>
     
   <div id="content">
-    <ul>{% for user in users %}
-        <li><a href="https://www.twitter.com/{{ user.screen_name }}" title="{{ user.screen_name }}">{{ user.name }}</a></li>
-    {% endfor %}</ul>
+    <h2>Signed in as <a href="https://www.twitter.com/{{ user.screen_name }}">{{ user.screen_name }}</a>.</h2>
+
+    <div id="blurb" style="margin-top:16px; width: 500px; color: #666;">
+      <p>You have {{ stats.me }} followers, and <a href="https://www.twitter.com/{{ stats.name }}">{{ stats.name }}</a> has {{ stats.other }} followers.</p>
+      <p>You share {{ stats.both }} followers:</p>
+      <ul>{% for user in users %}
+          <li><a href="https://www.twitter.com/{{ user.screen_name }}" title="{{ user.screen_name }}">{{ user.name }}</a></li>
+      {% endfor %}</ul>
+    </div>
   </div>
 </div>
 </body>
 </html>
+
+<!-- 
+-*- tab-width: 2; x-font-size: 9;  -*-
+ -->

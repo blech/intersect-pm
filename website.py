@@ -45,8 +45,15 @@ def intersect():
 
     i = set(my_list['ids']).intersection(set(their_list['ids']))
     users = user_lookup(oauth_token, oauth_secret, i)
+    users.sort(key=lambda x: x['name'].lower())
 
-    return render_template("list.html", users=users)
+    stats = { 'me': len(my_list['ids']),
+              'other': len(their_list['ids']),
+              'both': len(users),
+              'name': other_name,
+            }
+
+    return render_template("list.html", user=user, users=users, stats=stats)
 
 
 ### Twitter methods
@@ -60,28 +67,40 @@ def get_user_info(oauth_token, oauth_secret):
     return u
 
 def get_follower_ids(oauth_token, oauth_secret, screen_name=None):
+    # TODO fix the key for memcache - currently we're leaking follower lists for private
+    # users
     f = mc.get(str("%s:followers" % screen_name))
+
     if not f:
         t = Twitter(auth=OAuth(oauth_token, oauth_secret, consumer_key, consumer_secret))
+
+        # TODO handle paging (look for next_cursor != 0 in response)
         if screen_name:
             f = t.followers.ids(screen_name=screen_name)
         else:
             f = t.followers.ids()
+
         mc.set(str("%s:followers" % screen_name), dict(f))
+
     return f
 
 def user_lookup(oauth_token, oauth_secret, intersect):
     user_ids = ','.join([str(x) for x in intersect])
     key = hashlib.md5(user_ids).hexdigest()
+
     users = mc.get(key)
     if not users:
         users = []
         t = Twitter(auth=OAuth(oauth_token, oauth_secret, consumer_key, consumer_secret))
+
         chunks = [list(intersect)[i:i+100] for i in range(0, len(intersect), 100)]
         for chunk in chunks:
             user_ids = ','.join([str(x) for x in chunk])
             users.extend(list(t.users.lookup(user_id=user_ids)))
+
+        # TODO? split up users into their own memcache key
         mc.set(key, users)
+
     return users
 
 ### utility auth method
@@ -100,6 +119,7 @@ def parse_oauth_tokens(result):
 @app.route('/auth', methods=['GET', 'POST'])
 def auth():
     twitter = Twitter(auth=OAuth('', '', consumer_key, consumer_secret), format='', api_version=None)
+
     oauth_callback = request.host_url + 'callback'
     request_token = twitter.oauth.request_token(oauth_callback=oauth_callback)
     oauth_token, oauth_token_secret = parse_oauth_tokens(request_token)
