@@ -43,12 +43,12 @@ def intersect():
     my_list = get_follower_ids(oauth_token, oauth_secret, user['screen_name'])
     their_list = get_follower_ids(oauth_token, oauth_secret, other_name)
 
-    i = set(my_list['ids']).intersection(set(their_list['ids']))
+    i = set(my_list).intersection(set(their_list))
     users = user_lookup(oauth_token, oauth_secret, i)
     users.sort(key=lambda x: x['name'].lower())
 
-    stats = { 'me': len(my_list['ids']),
-              'other': len(their_list['ids']),
+    stats = { 'me': len(my_list),
+              'other': len(their_list),
               'both': len(users),
               'name': other_name,
             }
@@ -67,20 +67,24 @@ def get_user_info(oauth_token, oauth_secret):
     return u
 
 def get_follower_ids(oauth_token, oauth_secret, screen_name=None):
-    # TODO fix the key for memcache - currently we're leaking follower lists for private
-    # users
-    f = mc.get(str("%s:followers" % screen_name))
+    # TODO fix the key for memcache - currently we're leaking protected user follower lists
+    f = mc.get(str("%s:followers_l" % screen_name))
 
     if not f:
+        print "Fetching from Twitter"
         t = Twitter(auth=OAuth(oauth_token, oauth_secret, consumer_key, consumer_secret))
+        f = []
 
-        # TODO handle paging (look for next_cursor != 0 in response)
-        if screen_name:
-            f = t.followers.ids(screen_name=screen_name)
-        else:
-            f = t.followers.ids()
+        cursor = -1
+        while cursor:
+            print "Fetching follower IDs with screen_name %s cursor %s" % (screen_name, cursor)
+            r = t.followers.ids(screen_name=screen_name, cursor=cursor)
 
-        mc.set(str("%s:followers" % screen_name), dict(f))
+            print r
+            f.extend(r['ids'])
+            cursor = r['next_cursor']
+
+        mc.set(str("%s:followers_l" % screen_name), list(f))
 
     return f
 
