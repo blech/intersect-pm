@@ -1,10 +1,10 @@
 Yet another Twitter user intersection app.
 
-    (intersect)stagger:intersect paulmison$ python console.py 
+    $ python console.py 
 
 Note that (almost) everything in that is hardcoded. You might be better off with the web app:
 
-    (intersect)stagger:intersect paulmison$ python website.py 
+    $ python website.py 
 
 Now with D3 and nicely styled lists, and a [hosted version](http://intersect.husk.org/).
 
