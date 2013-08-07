@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+
+  <title>{% block title %}{% endblock %}</title>
+  <link href="/static/collected.css" media="screen" type="text/css" rel="stylesheet" />
+
+  <meta name="author" content="Paul Mison" />
+  <meta name="description" content="Paul Mison, elsewhere." />
+  <meta name="keywords" content="" />
+
+  <style type="text/css">
+    body { height: 100%; }
+    div#blurb { margin-top:16px; color: #666; }
+    ul { width: 100%; min-height: 200px; font-size: 1.25em; line-height: 1.4em; }
+    ul li { float: left; width: 10em; list-style-type: none; }
+  </style>
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+
+</head>
+<body>
+
+<div id="wrap">
+  <div class="header">
+    <h1>intersect.husk.org. <span class="sub">find twitter user list intersections.</span></h1>
+  </div>
+    
+  {% block content %}
+  {% endblock %}
+</div>
+
+{% block script %}
+{% endblock %}
+
+</body>
+</html>

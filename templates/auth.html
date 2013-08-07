@@ -1,53 +1,22 @@
-<!DOCTYPE html>
-<html lang="en" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-  <meta content="text/html; charset=utf-8" http-equiv="content-type" />
-
-  <title>intersect.husk.org.</title>
-  <link href="/static/collected.css" media="screen" type="text/css" rel="stylesheet" />
-
-  <meta name="author" content="Paul Mison" />
-  <meta name="description" content="Paul Mison, elsewhere." />
-  <meta name="keywords" content="" />
-
-  <style type="text/css">
-    body { height: 100%; }
-    #big { color: #00f; 
-           font-size: 76px; 
-           font-weight:600; 
-           line-height: 0.8em; 
-           letter-spacing: -0.05em;
-           height: 100%; }
-    #big a:hover { color: #66f; background: none; }
-  </style>
-
-</head>
-<body>
-
-<div id="wrap">
-  <div class="header">
-    <h1>intersect.husk.org. <span class="sub">find twitter user list intersections.</span></h1>
-  </div>
-    
+{% extends "base.html" %}
+{% block title %}intersect.husk.org. hello.{% endblock %}
+{% block content %}
   <div id="content">
     <h2>You need to <a href="/auth">authenticate with Twitter</a> to use this site.</h2>
 
     <div id="blurb" style="margin-top:16px; width: 500px; color: #666;">
-    <p>This app will find the intersection between your followers and those of another person. It's 
+      <p>This app will find the intersection between your followers and those of another person. It's 
         handy for those times when you want an idea of how many people will see an @reply, or if 
         everyone who's likely to care will already have seen that witty <i>bon mot</i> you were planning 
         to retweet.</p>
         
-    <p>It's different from almost every other app like this that I've seen in that it's written 
+      <p>It's different from almost every other app like this that I've seen in that it's written 
         from the start to use Twitter authentication, which means that people with private accounts 
         (like, er, me) can use it.</p>
         
-    <p>- Paul Mison (<a href="https://www.twitter.com/blech">@blech</a>; <a href="https://github.com/blech/intersect-pm/">source</a>)</p>
+      <p>I hope you find it useful.</p>
+        
+      <p>- Paul Mison (<a href="https://www.twitter.com/blech">@blech</a>; <a href="https://github.com/blech/intersect-pm/">source</a>)</p>
     </div>
-</div>
-</body>
-</html>
-
-<!-- 
--*- tab-width: 2; x-font-size: 9;  -*-
- -->
+  </div>
+{% endblock %}
