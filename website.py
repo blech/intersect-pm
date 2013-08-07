@@ -5,6 +5,7 @@ from flask import Flask, escape, redirect, render_template, request, session, ur
 from twitter import *
 
 import hashlib
+import math
 import memcache
 import os
 
@@ -47,9 +48,12 @@ def intersect():
     users = user_lookup(oauth_token, oauth_secret, i)
     users.sort(key=lambda x: x['name'].lower())
 
+    dist = distance(len(my_list), len(their_list), len(users))
+
     stats = { 'me': len(my_list),
               'other': len(their_list),
               'both': len(users),
+              'distance': dist,
               'name': other_name,
             }
 
@@ -106,6 +110,45 @@ def user_lookup(oauth_token, oauth_secret, intersect):
         mc.set(key, users)
 
     return users
+
+### maths nonsense (calculates distance for overlapping circles)
+
+def area(d, r1, r2):
+    # http://mathworld.wolfram.com/Circle-CircleIntersection.html eqn 14
+    r1c = (d**2+r1**2-r2**2)/(2*d*r1)
+    r2c = (d**2+r2**2-r1**2)/(2*d*r2)
+    rm = (0-d+r1+r2)*(d+r1-r2)*(d-r1+r2)*(d+r1+r2)
+
+    na = (r1**2)*math.acos(r1c)+(r2**2)*math.acos(r2c)-(0.5*math.sqrt(rm))
+
+    return na
+
+def distance(me, them, desired):
+    r1 = math.sqrt(float(me)/math.pi)
+    r2 = math.sqrt(float(them)/math.pi)
+    
+    print "r1=%s r2=%s" % (r1, r2)
+
+    scale = 0.9
+    overlap = 0
+
+    # this is not how to do numerical analysis, but it works, damnit
+    while abs(desired-overlap) > .25:
+        d = (r1+r2)*scale
+        print "Guessing distance %s (scale %s)" % (d, scale)
+
+        overlap = area(d, r1, r2)
+        print "Calcualting overlap %s (want %s)" % (overlap, desired)
+        print ""
+
+        if overlap > desired:
+            scale = scale+((1-scale)/2)
+        else:
+            scale = scale-((1-scale)/2)
+
+    print "Returning with %s" % d
+    return d
+
 
 ### utility auth method
 
