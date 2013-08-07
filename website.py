@@ -75,16 +75,13 @@ def get_follower_ids(oauth_token, oauth_secret, screen_name=None):
     f = mc.get(str("%s:followers_l" % screen_name))
 
     if not f:
-        print "Fetching from Twitter"
         t = Twitter(auth=OAuth(oauth_token, oauth_secret, consumer_key, consumer_secret))
         f = []
 
         cursor = -1
         while cursor:
-            print "Fetching follower IDs with screen_name %s cursor %s" % (screen_name, cursor)
             r = t.followers.ids(screen_name=screen_name, cursor=cursor)
 
-            print r
             f.extend(r['ids'])
             cursor = r['next_cursor']
 
@@ -127,26 +124,19 @@ def distance(me, them, desired):
     r1 = math.sqrt(float(me)/math.pi)
     r2 = math.sqrt(float(them)/math.pi)
     
-    print "r1=%s r2=%s" % (r1, r2)
-
     scale = 0.9
     overlap = 0
 
     # this is not how to do numerical analysis, but it works, damnit
     while abs(desired-overlap) > .25:
         d = (r1+r2)*scale
-        print "Guessing distance %s (scale %s)" % (d, scale)
-
         overlap = area(d, r1, r2)
-        print "Calcualting overlap %s (want %s)" % (overlap, desired)
-        print ""
 
         if overlap > desired:
             scale = scale+((1-scale)/2)
         else:
             scale = scale-((1-scale)/2)
 
-    print "Returning with %s" % d
     return d
 
 
@@ -192,8 +182,20 @@ def callback():
 
     tokens = twitter.oauth.access_token(oauth_verifier=oauth_verifier)
     (session['oauth_token'], session['oauth_secret']) = parse_oauth_tokens(tokens)
-    
+
+    session.pop('temp_token', None)
+    session.pop('temp_secret', None)
+
     return redirect(url_for('index'))
+
+### logout might be a good idea
+@app.route('/forget')
+def forget():
+    for var in ('temp_token', 'temp_secret', 'oauth_token', 'oauth_secret'):
+        session.pop(var, None)
+
+    return redirect(url_for('index'))
+
 
 if __name__ == "__main__":
     app.run(debug = True)
