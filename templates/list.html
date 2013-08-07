@@ -12,18 +12,9 @@
 
   <style type="text/css">
     body { height: 100%; }
-    #big { color: #00f; 
-           font-size: 76px; 
-           font-weight:600; 
-           line-height: 0.8em; 
-           letter-spacing: -0.05em;
-           height: 100%; }
-    #big a:hover { color: #66f; background: none; }
+    div#blurb { margin-top:16px; color: #666; }
     ul { width: 100%; min-height: 200px; font-size: 1.25em; line-height: 1.4em; }
     ul li { float: left; width: 10em; list-style-type: none; }
-    br { clear: left; }
-    li { line-height: 1.2em; }  li.feve,
-  
   </style>
   <script src="http://d3js.org/d3.v3.min.js"></script>
 
@@ -38,10 +29,10 @@
   <div id="content">
     <h2>Signed in as <a href="https://www.twitter.com/{{ user.screen_name }}">{{ user.screen_name }}</a>.</h2>
 
-    <div id="blurb" style="margin-top:16px; olor: #666;">
+    <div id="blurb">
       <p>You have {{ stats.me }} followers, and <a href="https://www.twitter.com/{{ stats.name }}">{{ stats.name }}</a> has {{ stats.other }} followers.</p>
       <p>You share {{ stats.both }} followers:</p>
-      <ul style="height: 200px;">{% for user in users %}
+      <ul>{% for user in users %}
           <li class="{{ user.screen_name }}"><a href="https://www.twitter.com/{{ user.screen_name }}" title="{{ user.screen_name }}">{{ user.name }}</a></li>
       {% endfor %}</ul>
     </div>
