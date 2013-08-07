@@ -45,27 +45,34 @@
 
 <script>
 
-var width = 1000,
-    height = 1000;
+var e=document.documentElement,
+    g=document.getElementsByTagName('body')[0],
+    width=window.innerWidth||e.clientWidth||g.clientWidth,
+    height=window.innerHeight||e.clientHeight||g.clientHeight;
 
 var svg = d3.select("div#content").insert("svg", "div#blurb")
     .style("position", "absolute")
+    .style("top", "0px")
+    .style("left", "0px")
+    .style("z-index", "-1")
     .attr("width", width)
     .attr("height", height);
 
 var scale = 500/{{ stats.distance }}
 
 var me = svg.append("circle")
-            .attr("cx", 250)
+            .attr("cx", width/4)
             .attr("cy", height/2)
             .attr("r", Math.sqrt({{ stats.me }}/Math.PI)*scale)
-            .style("fill", "rgba(100, 0, 0, .25)");
+            .style("fill", "rgba(0, 50, 0, .25)")
+            .style("stroke", "rgba(0, 0, 0, .5)");
 
 var them = svg.append("circle")
-              .attr("cx", 750)
+              .attr("cx", 3*width/4)
               .attr("cy", height/2)
               .attr("r", Math.sqrt({{ stats.other }}/Math.PI)*scale)
-              .style("fill", "rgba(100, 0, 0, .25)");
+              .style("fill", "rgba(100, 0, 0, .25)")
+            .style("stroke", "rgba(0, 0, 0, .5)");
 
 
 </script>
