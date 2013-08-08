@@ -78,6 +78,17 @@ def _intersect(them, me=None):
     return render_template("list.html", user=user, users=users, stats=stats)
 
 
+### error handlers
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+    
+@app.errorhandler(500)
+def page_not_found(e):
+    return render_template('500.html'), 500
+
+
 ### Twitter methods
 
 def get_user_info(oauth_token, oauth_secret):
