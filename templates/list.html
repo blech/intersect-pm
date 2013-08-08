@@ -46,15 +46,13 @@ var me = svg.append("circle")
             .attr("cx", width/4)
             .attr("cy", height/2)
             .attr("r", Math.sqrt({{ stats.mine }}/Math.PI)*scale)
-            .style("fill", "rgba(0, 50, 0, .25)")
-            .style("stroke", "rgba(0, 0, 0, .5)");
+            .style("fill", "rgba(255, 102, 255, .25)");
 
 var them = svg.append("circle")
               .attr("cx", 3*width/4)
               .attr("cy", height/2)
               .attr("r", Math.sqrt({{ stats.theirs }}/Math.PI)*scale)
-              .style("fill", "rgba(100, 0, 0, .25)")
-            .style("stroke", "rgba(0, 0, 0, .5)");
+              .style("fill", "rgba(102, 204, 255, .25)");
 
 </script>
 {% endblock %}
