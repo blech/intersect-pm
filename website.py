@@ -63,7 +63,7 @@ def _intersect(them, me=None):
 
     i = set(my_list).intersection(set(their_list))
     users = user_lookup(oauth_token, oauth_secret, i)
-    users.sort(key=lambda x: x['name'].lower())
+    users.sort(key=lambda x: x['screen_name'].lower())
 
     dist = distance(len(my_list), len(their_list), len(users))
 
