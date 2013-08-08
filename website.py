@@ -123,7 +123,10 @@ def area(d, r1, r2):
 def distance(me, them, desired):
     r1 = math.sqrt(float(me)/math.pi)
     r2 = math.sqrt(float(them)/math.pi)
-    
+
+    if desired == 0:
+        return r1+r2+((r1+r2)/100)
+
     scale = 0.9
     overlap = 0
 
