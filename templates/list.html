@@ -6,11 +6,16 @@
     <h2>Signed in as <a href="https://www.twitter.com/{{ user.screen_name }}">{{ user.screen_name }}</a>.</h2>
 
     <div id="blurb">
-      <p>You have {{ stats.me }} followers, and <a href="https://www.twitter.com/{{ stats.name }}">{{ stats.name }}</a> has {{ stats.other }} followers.</p>
-      <p>You share {{ stats.both }} followers:</p>
-      <ul>{% for user in users %}
-          <li class="{{ user.screen_name }}"><a href="https://www.twitter.com/{{ user.screen_name }}" title="{{ user.screen_name }}">{{ user.name }}</a></li>
-      {% endfor %}</ul>
+      <p>{% if user.screen_name == stats.me %}You have{% else %}<a href="https://www.twitter.com/{{ stats.me }}/">{{ stats.me }}</a> has{% endif %} 
+         {{ stats.mine }} followers, and <a href="https://www.twitter.com/{{ stats.them }}">{{ stats.them }}</a> has {{ stats.theirs }} followers.
+        {% if not stats.both %}You have no followers in common.{% endif %}
+      </p>
+      {% if stats.both %}
+        <p>{% if user.screen_name == stats.me %}You{% else %}They{% endif %} share {{ stats.both }} followers:</p>
+        <ul>{% for u in users %}
+            <li><a href="/intersect/{{ stats.me }}/{{ u.screen_name }}/" title="{{ u.name }}">{{ u.screen_name }}</a></li>
+        {% endfor %}</ul>
+      {% endif %}
     </div>
     
     <div class="clear"><a href="/">Search again</a>? <a href="/forget">Log out</a>?</div>
@@ -40,14 +45,14 @@ var scale = width/(2*{{ stats.distance }})
 var me = svg.append("circle")
             .attr("cx", width/4)
             .attr("cy", height/2)
-            .attr("r", Math.sqrt({{ stats.me }}/Math.PI)*scale)
+            .attr("r", Math.sqrt({{ stats.mine }}/Math.PI)*scale)
             .style("fill", "rgba(0, 50, 0, .25)")
             .style("stroke", "rgba(0, 0, 0, .5)");
 
 var them = svg.append("circle")
               .attr("cx", 3*width/4)
               .attr("cy", height/2)
-              .attr("r", Math.sqrt({{ stats.other }}/Math.PI)*scale)
+              .attr("r", Math.sqrt({{ stats.theirs }}/Math.PI)*scale)
               .style("fill", "rgba(100, 0, 0, .25)")
             .style("stroke", "rgba(0, 0, 0, .5)");
 

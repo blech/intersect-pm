@@ -33,16 +33,33 @@ def intersect():
     if not 'oauth_token' in session or not 'oauth_secret' in session:
         return redirect(url_for('index'))
 
+    them = request.form.get('other_name', None)
+    if not them:
+        return redirect(url_for('index'))
+
+    return _intersect(them=them)
+
+@app.route("/intersect/<me>/<them>/", methods=['GET'])
+def permalink(me, them):
+    if not 'oauth_token' in session or not 'oauth_secret' in session:
+        return redirect(url_for('index'))
+
+    return _intersect(me=me, them=them)
+
+def _intersect(them, me=None):
     oauth_token = session.get('oauth_token', None)
     oauth_secret = session.get('oauth_secret', None)
 
     user = get_user_info(oauth_token, oauth_secret)
-    other_name = request.form.get('other_name', None)
-    if not other_name or other_name == user['screen_name']:
-        return redirect(url_for('index'))
 
-    my_list = get_follower_ids(oauth_token, oauth_secret, user['screen_name'])
-    their_list = get_follower_ids(oauth_token, oauth_secret, other_name)
+    if not me or me == "me":
+        me = user['screen_name']
+
+    if me == them:
+       return redirect(url_for('index'))
+
+    my_list = get_follower_ids(oauth_token, oauth_secret, me)
+    their_list = get_follower_ids(oauth_token, oauth_secret, them)
 
     i = set(my_list).intersection(set(their_list))
     users = user_lookup(oauth_token, oauth_secret, i)
@@ -50,11 +67,12 @@ def intersect():
 
     dist = distance(len(my_list), len(their_list), len(users))
 
-    stats = { 'me': len(my_list),
-              'other': len(their_list),
+    stats = { 'me': me,
+              'mine': len(my_list),
+              'them': them,
+              'theirs': len(their_list),
               'both': len(users),
               'distance': dist,
-              'name': other_name,
             }
 
     return render_template("list.html", user=user, users=users, stats=stats)
@@ -80,6 +98,7 @@ def get_follower_ids(oauth_token, oauth_secret, screen_name=None):
 
         cursor = -1
         while cursor:
+            # TODO catch TwitterHTTPError error for incorrect screen_name here
             r = t.followers.ids(screen_name=screen_name, cursor=cursor)
 
             f.extend(r['ids'])
