@@ -35,7 +35,7 @@ def intersect():
     if not 'oauth_token' in session or not 'oauth_secret' in session:
         return redirect(url_for('index'))
 
-    them = request.form.get('other_name', None)
+    them = request.form.get('them', None)
     if not them:
         return redirect(url_for('index'))
 
