@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from flask import Flask, escape, redirect, render_template, request, session, url_for
+from werkzeug.exceptions import NotFound as WerkzeugNotFound
 
 from twitter import *
 
@@ -38,7 +39,7 @@ def intersect():
     if not them:
         return redirect(url_for('index'))
 
-    return _intersect(them=them)
+    return redirect(url_for('permalink', them=them, me='me'))
 
 @app.route("/intersect/<me>/<them>/", methods=['GET'])
 def permalink(me, them):
@@ -98,6 +99,9 @@ def internal_error(e):
     return render_template('500.html'), 500
 
 def user_exception(e):
+    if type(e) == WerkzeugNotFound:
+        return page_not_found(e)
+
     # handle TwitterHTTPError
     if hasattr(e, 'response_data'):
         error = None
@@ -115,7 +119,7 @@ def user_exception(e):
             print "Got unhandled Twitter error. Details: %r" % full
             return render_template('500.html'), 500
 
-    print "Got unknown exception %r" % e
+    print "Got unknown exception %s %r" % (type(e), e)
     return render_template('500.html'), 500
 app.handle_user_exception = user_exception
 
