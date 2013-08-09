@@ -5,6 +5,7 @@ from flask import Flask, escape, redirect, render_template, request, session, ur
 from twitter import *
 
 import hashlib
+import json
 import math
 import memcache
 import os
@@ -85,8 +86,30 @@ def page_not_found(e):
     return render_template('404.html'), 404
     
 @app.errorhandler(500)
-def page_not_found(e):
+def internal_error(e):
     return render_template('500.html'), 500
+
+def user_exception(e):
+    # handle TwitterHTTPError
+    if e.response_data:
+        error = None
+        full = json.loads(e.response_data)
+
+        if 'error' in full:
+            error = full['error']
+        elif 'errors' in full:
+            error = ', '.join([e['message'] for e in full['errors']])
+
+        if error:
+            print "Handled Twitter error. Details: %r" % full
+            return render_template('500.html', error=error, type='twitter'), 500
+        else:
+            print "Got unhandled Twitter error. Details: %r" % full
+            return render_template('500.html'), 500
+
+    print "Got unknown exception %r" % e
+    return render_template('500.html'), 500
+app.handle_user_exception = user_exception
 
 
 ### Twitter methods
@@ -109,9 +132,7 @@ def get_follower_ids(oauth_token, oauth_secret, screen_name=None):
 
         cursor = -1
         while cursor:
-            # TODO catch TwitterHTTPError error for incorrect screen_name here
             r = t.followers.ids(screen_name=screen_name, cursor=cursor)
-
             f.extend(r['ids'])
             cursor = r['next_cursor']
 
@@ -137,6 +158,7 @@ def user_lookup(oauth_token, oauth_secret, intersect):
         mc.set(key, users)
 
     return users
+
 
 ### maths nonsense (calculates distance for overlapping circles)
 
@@ -184,6 +206,7 @@ def parse_oauth_tokens(result):
             oauth_token_secret = v
     return oauth_token, oauth_token_secret
 
+
 ### /auth and /callback required for logging in to Twitter
 
 @app.route('/auth', methods=['GET', 'POST'])
@@ -220,6 +243,7 @@ def callback():
     session.pop('temp_secret', None)
 
     return redirect(url_for('index'))
+
 
 ### logout might be a good idea
 @app.route('/forget')

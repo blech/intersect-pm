@@ -5,7 +5,11 @@
     <h2>500 server error</h2>
 
     <div id="blurb">
-        <p>Something has gone badly wrong in the guts of this application. Sorry about that.<br>
+        {% if type == "twitter" %}
+        <p>There was a problem with Twitter. They said: '{{ error }}'.<br>
+        {% else %}
+        <p>Something has gone slightly amiss in the guts of this application. Sorry about that.<br>
+        {% endif %}
             Go <a href="/">home</a>.</p>
     </div>
   </div>
