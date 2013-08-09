@@ -78,6 +78,14 @@ def _intersect(them, me=None):
 
     return render_template("list.html", user=user, users=users, stats=stats)
 
+@app.route("/limits")
+def limits():
+    if not 'oauth_token' in session or not 'oauth_secret' in session:
+        return redirect(url_for('index'))
+
+    user = get_user_info(oauth_token, oauth_secret)
+    limits = get_rate_limits(oauth_token, oauth_secret)
+    return render_template("limits.html", user=user, limits=limits)
 
 ### error handlers
 
@@ -91,7 +99,7 @@ def internal_error(e):
 
 def user_exception(e):
     # handle TwitterHTTPError
-    if e.response_data:
+    if hasattr(e, 'response_data'):
         error = None
         full = json.loads(e.response_data)
 
@@ -119,6 +127,7 @@ def get_user_info(oauth_token, oauth_secret):
     if not u:
         t = Twitter(auth=OAuth(oauth_token, oauth_secret, consumer_key, consumer_secret))
         u = t.account.settings()
+        print "Twitter account.settings call made, with %s requests remaining" % u.rate_limit_remaining
         mc.set(str(oauth_token)+":user", dict(u))
     return u
 
@@ -133,6 +142,7 @@ def get_follower_ids(oauth_token, oauth_secret, screen_name=None):
         cursor = -1
         while cursor:
             r = t.followers.ids(screen_name=screen_name, cursor=cursor)
+            print "Twitter followers.ids call made, with %s requests remaining" % r.rate_limit_remaining
             f.extend(r['ids'])
             cursor = r['next_cursor']
 
@@ -152,7 +162,9 @@ def user_lookup(oauth_token, oauth_secret, intersect):
         chunks = [list(intersect)[i:i+100] for i in range(0, len(intersect), 100)]
         for chunk in chunks:
             user_ids = ','.join([str(x) for x in chunk])
-            users.extend(list(t.users.lookup(user_id=user_ids)))
+            r = t.users.lookup(user_id=user_ids)
+            print "Twitter users.lookup call made, with %s requests remaining" % r.rate_limit_remaining
+            users.extend(list(r))
 
         # TODO? split up users into their own memcache key
         mc.set(key, users)
