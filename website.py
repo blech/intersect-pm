@@ -44,6 +44,7 @@ def intersect():
 @app.route("/intersect/<me>/<them>/", methods=['GET'])
 def permalink(me, them):
     if not 'oauth_token' in session or not 'oauth_secret' in session:
+        session['return_to'] = request.full_path
         return redirect(url_for('index'))
 
     return _intersect(me=me, them=them)
@@ -82,6 +83,7 @@ def _intersect(them, me=None):
 @app.route("/limits")
 def limits():
     if not 'oauth_token' in session or not 'oauth_secret' in session:
+        session['return_to'] = request.full_path
         return redirect(url_for('index'))
 
     user = get_user_info(oauth_token, oauth_secret)
@@ -278,6 +280,10 @@ def callback():
 
     session.pop('temp_token', None)
     session.pop('temp_secret', None)
+    
+    return_to = session.pop('return_to', None)
+    if return_to:
+        return redirect(return_to)
 
     return redirect(url_for('index'))
 
