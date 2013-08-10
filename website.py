@@ -236,7 +236,10 @@ def distance(me, them, desired, show_working=False):
             scale = scale+change
         else:
             scale = scale-change
+
         change = change/2
+        if not change:
+            change = 0.05
 
     if show_working: print " ... returning distance %s (r1 %s, r2 %s)" % (d, r1, r2)
     return d
