@@ -67,7 +67,7 @@ def _intersect(them, me=None):
     users = user_lookup(oauth_token, oauth_secret, i)
     users.sort(key=lambda x: x['screen_name'].lower())
 
-    dist = distance(len(my_list), len(their_list), len(users))
+    dist = distance(len(my_list), len(their_list), len(users), show_working=True)
 
     stats = { 'me': me,
               'mine': len(my_list),
@@ -178,36 +178,57 @@ def user_lookup(oauth_token, oauth_secret, intersect):
 
 ### maths nonsense (calculates distance for overlapping circles)
 
-def area(d, r1, r2):
+def area(d, r1, r2, show_working):
     # http://mathworld.wolfram.com/Circle-CircleIntersection.html eqn 14
     r1c = (d**2+r1**2-r2**2)/(2*d*r1)
     r2c = (d**2+r2**2-r1**2)/(2*d*r2)
     rm = (0-d+r1+r2)*(d+r1-r2)*(d-r1+r2)*(d+r1+r2)
 
-    na = (r1**2)*math.acos(r1c)+(r2**2)*math.acos(r2c)-(0.5*math.sqrt(rm))
+    if show_working: print "area calc has r1c, r2c, rm: %s, %s, %s" % (r1c, r2c, rm)
 
+    na = (r1**2)*math.acos(r1c)+(r2**2)*math.acos(r2c)-(0.5*math.sqrt(rm))
     return na
 
-def distance(me, them, desired):
+def distance(me, them, desired, show_working=False):
     r1 = math.sqrt(float(me)/math.pi)
     r2 = math.sqrt(float(them)/math.pi)
+    
+    if show_working: print "%s -> %s; %s -> %s" % (me, r1, them, r2)
 
     if desired == 0:
+        if show_working: print "No overlap, returning 0"
         return r1+r2+((r1+r2)/100)
 
     scale = 0.9
     overlap = 0
+    maximum = r1+r2
+    minimum = abs(r1-r2)
+
+    if show_working: print "Starting scale 0.9"
 
     # this is not how to do numerical analysis, but it works, damnit
     while abs(desired-overlap) > .25:
         d = (r1+r2)*scale
-        overlap = area(d, r1, r2)
+
+        if show_working: print "Starting scale %s distance %s" % (scale, d)
+
+        if d > maximum:
+            scale = scale-((1-scale)/2)
+            continue
+
+        if d < minimum:
+            scale = scale+((1-scale)/2)
+            continue
+
+        overlap = area(d, r1, r2, show_working)
+        if show_working: print " ... calculated overlap %s (want %s)" % (overlap, desired)
 
         if overlap > desired:
             scale = scale+((1-scale)/2)
         else:
             scale = scale-((1-scale)/2)
 
+    if show_working: print " ... returning distance %s (r1 %s, r2 %s)" % (d, r1, r2)
     return d
 
 
