@@ -68,7 +68,7 @@ def _intersect(them, me=None):
     users = user_lookup(oauth_token, oauth_secret, i)
     users.sort(key=lambda x: x['screen_name'].lower())
 
-    dist = distance(len(my_list), len(their_list), len(users)) #, show_working=True
+    dist = distance(len(my_list), len(their_list), len(users)) #, show_working=True)
 
     stats = { 'me': me,
               'mine': len(my_list),
@@ -206,26 +206,17 @@ def distance(me, them, desired, show_working=False):
     # here comes the infinite series, concentrate
     scale = 0.5; change = 0.5
     maximum = r1+r2; minimum = abs(r1-r2)
+    diff = maximum-minimum
 
     overlap = 0
 
     # binary search ahoy
     # the condition should be a fraction, but this kind of works
     while abs(desired-overlap) > .25:
-        d = (r1+r2)*scale
+        d = diff*scale+minimum
         change = change/2
 
         if show_working: print "Starting scale %s distance %s" % (scale, d)
-
-        # logically it makes no sense for d to be larger than r1+r2...
-        if d > maximum:
-            scale = scale-change
-            continue
-
-        # or smaller than would allow them to overlap
-        if d < minimum:
-            scale = scale+change
-            continue
 
         overlap = area(d, r1, r2, show_working)
         if show_working: print " ... calculated overlap %s (want %s)" % (overlap, desired)
