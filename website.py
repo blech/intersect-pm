@@ -68,7 +68,7 @@ def _intersect(them, me=None):
     users = user_lookup(oauth_token, oauth_secret, i)
     users.sort(key=lambda x: x['screen_name'].lower())
 
-    dist = distance(len(my_list), len(their_list), len(users))
+    dist = distance(len(my_list), len(their_list), len(users)) #, show_working=True
 
     stats = { 'me': me,
               'mine': len(my_list),
@@ -205,17 +205,17 @@ def distance(me, them, desired, show_working=False):
         if show_working: print "No overlap, returning 0"
         return r1+r2+((r1+r2)/100)
 
-    scale = 0.9
-    change = 0.05
+    # here comes the infinite series, concentrate
+    scale = 0.5; change = 0.5
+    maximum = r1+r2; minimum = abs(r1-r2)
+
     overlap = 0
-    maximum = r1+r2
-    minimum = abs(r1-r2)
 
-    if show_working: print "Starting scale 0.9"
-
-    # this is not how to do numerical analysis, but it works, damnit
+    # binary search ahoy
+    # the condition should be a fraction, but this kind of works
     while abs(desired-overlap) > .25:
         d = (r1+r2)*scale
+        change = change/2
 
         if show_working: print "Starting scale %s distance %s" % (scale, d)
 
@@ -237,9 +237,8 @@ def distance(me, them, desired, show_working=False):
         else:
             scale = scale-change
 
-        change = change/2
         if not change:
-            change = 0.05
+            break # must be close enough by now
 
     if show_working: print " ... returning distance %s (r1 %s, r2 %s)" % (d, r1, r2)
     return d
