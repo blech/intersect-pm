@@ -202,6 +202,7 @@ def distance(me, them, desired, show_working=False):
         return r1+r2+((r1+r2)/100)
 
     scale = 0.9
+    change = 0.05
     overlap = 0
     maximum = r1+r2
     minimum = abs(r1-r2)
@@ -214,21 +215,24 @@ def distance(me, them, desired, show_working=False):
 
         if show_working: print "Starting scale %s distance %s" % (scale, d)
 
+        # logically it makes no sense for d to be larger than r1+r2...
         if d > maximum:
-            scale = scale-((1-scale)/2)
+            scale = scale-change
             continue
 
+        # or smaller than would allow them to overlap
         if d < minimum:
-            scale = scale+((1-scale)/2)
+            scale = scale+change
             continue
 
         overlap = area(d, r1, r2, show_working)
         if show_working: print " ... calculated overlap %s (want %s)" % (overlap, desired)
 
         if overlap > desired:
-            scale = scale+((1-scale)/2)
+            scale = scale+change
         else:
-            scale = scale-((1-scale)/2)
+            scale = scale-change
+        change = change/2
 
     if show_working: print " ... returning distance %s (r1 %s, r2 %s)" % (d, r1, r2)
     return d
