@@ -30,7 +30,7 @@ def index():
     user = get_user_info(oauth_token, oauth_secret)
     return render_template("index.html", user=user)
 
-@app.route("/intersect", methods=['POST'])
+@app.route("/", methods=['POST'])
 def intersect():
     if not 'oauth_token' in session or not 'oauth_secret' in session:
         return redirect(url_for('index'))
@@ -41,7 +41,7 @@ def intersect():
 
     return redirect(url_for('permalink', them=them, me='me'))
 
-@app.route("/intersect/<me>/<them>/", methods=['GET'])
+@app.route("/<me>/<them>/", methods=['GET'])
 def permalink(me, them):
     if not 'oauth_token' in session or not 'oauth_secret' in session:
         session['return_to'] = request.full_path
@@ -79,6 +79,10 @@ def _intersect(them, me=None):
             }
 
     return render_template("list.html", user=user, users=users, stats=stats)
+
+@app.route("/intersect/<me>/<them>/", methods=['GET'])
+def old_permalink(me, them):
+    return redirect(url_for('permalink', them=them, me=me))
 
 @app.route("/limits")
 def limits():
