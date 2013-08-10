@@ -104,11 +104,9 @@ def page_not_found(e):
 def internal_error(e):
     return render_template('500.html'), 500
 
-def user_exception(e):
-    if type(e) == WerkzeugNotFound:
-        return page_not_found(e)
-
+def handle_twitter_exception(e):
     # handle TwitterHTTPError
+    # TODO use type() matching not duck typing, maybe?
     if hasattr(e, 'response_data'):
         error = None
         full = json.loads(e.response_data)
@@ -126,8 +124,8 @@ def user_exception(e):
             return render_template('500.html'), 500
 
     print "Got unknown exception %s %r" % (type(e), e)
-    return render_template('500.html'), 500
-app.handle_user_exception = user_exception
+    raise e
+app.handle_exception = handle_twitter_exception
 
 
 ### Twitter methods
